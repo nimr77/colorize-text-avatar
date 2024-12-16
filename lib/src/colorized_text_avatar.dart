@@ -1,13 +1,11 @@
 import 'package:colorize_text_avatar/colorize_text_avatar.dart';
-import 'package:colorize_text_avatar/src/constants/colors.dart';
-import 'package:colorize_text_avatar/src/constants/enums.dart';
 import 'package:flutter/material.dart';
 
 class TextAvatar extends StatelessWidget {
-  Shape? shape;
-  Color? backgroundColor;
-  Color? textColor;
-  double? size;
+  final Shape? shape;
+  final Color? backgroundColor;
+  final Color? textColor;
+  final double? size;
   final String? text;
   final double? fontSize;
   final int? numberLetters;
@@ -32,34 +30,62 @@ class TextAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    shape = (shape == null) ? Shape.Rectangle : shape;
-    size = (size == null || size! < 32.0) ? 48.0 : size;
-    backgroundColor = backgroundColor == null ? _colorBackgroundConfig() : backgroundColor;
-    textColor = _colorTextConfig();
-    return _textDisplay();
+    final effectiveShape = (shape == null) ? Shape.Rectangle : shape;
+    final effectiveSize = (size == null || size! < 32.0) ? 48.0 : size;
+    final effectiveBackgroundColor =
+        backgroundColor == null ? _colorBackgroundConfig() : backgroundColor;
+    final effectiveTextColor = _colorTextConfig();
+    return _textDisplay(effectiveShape, effectiveSize, effectiveBackgroundColor,
+        effectiveTextColor);
+  }
+
+  Widget _buildText(Color? effectiveTextColor) {
+    return Text(
+      _textConfiguration(),
+      style: TextStyle(
+        color: effectiveTextColor,
+        fontSize: fontSize,
+        fontWeight: fontWeight,
+        fontFamily: fontFamily,
+      ),
+    );
+  }
+
+  RoundedRectangleBorder _buildTextType(
+      Shape? effectiveShape, double? effectiveSize) {
+    switch (effectiveShape) {
+      case Shape.Rectangle:
+        return RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(6.0),
+        );
+      case Shape.Circular:
+        return RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(effectiveSize! / 2),
+        );
+      case Shape.None:
+        return RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(0.0),
+        );
+      default:
+        {
+          return RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(effectiveSize! / 2),
+          );
+        }
+    }
   }
 
   Color _colorBackgroundConfig() {
     if (RegExp(r'[A-Z]|').hasMatch(
       _textConfiguration(),
     )) {
-      backgroundColor =
-          colorData[_textConfiguration()[0].toLowerCase().toString()];
+      return colorData[_textConfiguration()[0].toLowerCase().toString()]!;
     }
-    return backgroundColor!;
+    return Colors.transparent; // Default color if no match
   }
 
   Color _colorTextConfig() {
-    if (textColor == null)
-      return Colors.white;
-    else
-      return textColor!;
-  }
-
-  String _toString({String? value}) {
-    return String.fromCharCodes(
-      value!.runes.toList(),
-    );
+    return textColor ?? Colors.white;
   }
 
   String _textConfiguration() {
@@ -74,54 +100,26 @@ class TextAvatar extends StatelessWidget {
     return '${newText[0]}';
   }
 
-  Widget _buildText() {
-    return Text(
-      _textConfiguration(),
-      style: TextStyle(
-        color: textColor,
-        fontSize: fontSize,
-        fontWeight: fontWeight,
-        fontFamily: fontFamily,
+  Widget _textDisplay(Shape? effectiveShape, double? effectiveSize,
+      Color? effectiveBackgroundColor, Color? effectiveTextColor) {
+    return Container(
+      child: Material(
+        shape: _buildTextType(effectiveShape, effectiveSize),
+        color: effectiveBackgroundColor,
+        child: Container(
+          height: effectiveSize,
+          width: effectiveSize,
+          child: Center(
+            child: _buildText(effectiveTextColor),
+          ),
+        ),
       ),
     );
   }
 
-  _buildTextType() {
-    switch (shape) {
-      case Shape.Rectangle:
-        return RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(6.0),
-        );
-      case Shape.Circular:
-        return RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(size! / 2),
-        );
-      case Shape.None:
-        return RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(0.0),
-        );
-      default:
-        {
-          return RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(size! / 2),
-          );
-        }
-    }
-  }
-
-  Widget _textDisplay() {
-    return Container(
-      child: Material(
-        shape: _buildTextType(),
-        color: backgroundColor,
-        child: Container(
-          height: size,
-          width: size,
-          child: Center(
-            child: _buildText(),
-          ),
-        ),
-      ),
+  String _toString({String? value}) {
+    return String.fromCharCodes(
+      value!.runes.toList(),
     );
   }
 }

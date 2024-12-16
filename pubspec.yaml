@@ -1,10 +1,10 @@
 name: colorize_text_avatar
 description: Colorize Text Avatar is a package to generate avatar based on your user initials. 
-version: 1.0.3
+version: 1.3.0
 homepage: https://github.com/deniscolak/colorize-text-avatar
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
+  sdk: ">=2.12.0 <4.0.0"
   flutter: ">=1.17.0"
 
 dependencies:
